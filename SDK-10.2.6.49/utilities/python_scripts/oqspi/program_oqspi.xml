@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<program_oqspi>
+    <product_id>DA1470x-00</product_id>
+    <product_header>
+        <active_fw_image_address>0x3000</active_fw_image_address>
+        <update_fw_image_address>0x3000</update_fw_image_address>
+        <flash_name>MX25U6432</flash_name>
+        <flash_size>0x800000</flash_size>
+        <flash_burstcmda_reg_value>0xa8a500eb</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x616</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0xf8018f83</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x3 0x1 0x40 0x7</flash_write_config_command>
+    </product_header>
+</program_oqspi>

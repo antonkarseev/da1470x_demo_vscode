@@ -1,0 +1,298 @@
+/*********************************************************************
+*
+*       OnProjectLoad
+*
+* Function description
+*   Project load routine. Required.
+*
+**********************************************************************
+*/
+void OnProjectLoad (void) {
+  // SDK10 top directory
+  Project.SetRootPath("$(ProjectDir)/../../");
+  //
+  // Dialog-generated settings
+  //
+  Project.SetDevice ("Cortex-M33");
+  Project.SetHostIF ("USB", "");
+  Project.SetTargetIF ("SWD");
+  Project.SetTIFSpeed ("4 MHz");
+  Project.AddSvdFile ("$(InstallDir)/Config/CPU/Cortex-M33F.svd");
+  Project.AddSvdFile ("config/embsys/Dialog_Semiconductor/DA1470x-00.xml");
+  //
+  // Trace settings
+  //
+  Project.SetJLinkScript("da1470x_etm.JLinkScript");
+  Project.SetTraceSource("Trace Pins");
+  Project.SetTracePortWidth(4);
+  Edit.SysVar (VAR_TRACE_MAX_INST_CNT, 100000000);
+  Edit.SysVar (VAR_TRACE_CORE_CLOCK, 32000000);
+  //
+  // User settings
+  //
+  Edit.Preference (PREF_TIMESTAMP_FORMAT, TIMESTAMP_FORMAT_INST_CNT);
+  Edit.SysVar (VAR_TRACE_TIMESTAMPS_ENABLED, 0);
+  Project.SetOSPlugin ("FreeRTOSPlugin");
+  Util.Log("Select the program (.elf) to debug using 'File > Open...' or 'File > Recent Programs'");
+}
+
+/*********************************************************************
+*
+*       OnStartupComplete
+*
+* Function description
+*   Called when program execution has reached/passed
+*   the startup completion point. Optional.
+*
+**********************************************************************
+*/
+void OnStartupComplete (void) {
+  /* Load into cache 1MB of flash.
+   *
+   * TODO: Needs to apply application size
+   */
+  Exec.Command("ReadIntoTraceCache 0x00000000 0x100000");
+  /* Needed for functions located to RAM */
+  Exec.Command("ReadIntoTraceCache 0x10000000 0x50000");
+}
+
+/*********************************************************************
+*
+*      TargetReset
+*
+* Function description
+*   Replaces the default target device reset routine. Optional.
+*
+**********************************************************************
+*/
+//void TargetReset (void) {
+//}
+
+/*********************************************************************
+*
+*       BeforeTargetReset
+*
+* Function description
+*   Event handler routine. Optional.
+*
+**********************************************************************
+*/
+void BeforeTargetReset (void) {
+  Target.WriteU32(0x0F001000, 0xDEADBEEF);
+  Target.WriteU32(0x0F001004, 0xDEADBEEF);
+  Target.WriteU32(0x0F001008, 0xDEADBEEF);
+  Target.WriteU32(0x0F00100c, 0xDEAD10CC);
+}
+
+/*********************************************************************
+*
+*       AfterTargetReset
+*
+* Function description
+*   Event handler routine. Optional.
+*    - Sets the PC register to program reset value.
+*    - Sets the SP register to program reset value on Cortex-M.
+*
+**********************************************************************
+*/
+void AfterTargetReset (void) {
+  //
+  // Cannot read PC/SP from IVT yet -- it will be done after download.
+  // This hook must be overridden and left empty, or else Ozone might
+  // assign wrong values to PC and SP.
+  //
+}
+
+/*********************************************************************
+*
+*       DebugStart
+*
+* Function description
+*   Replaces the default debug session startup routine. Optional.
+*
+**********************************************************************
+*/
+//void DebugStart (void) {
+//}
+
+/*********************************************************************
+*
+*       TargetConnect
+*
+* Function description
+*   Replaces the default target IF connection routine. Optional.
+*
+**********************************************************************
+*/
+//void TargetConnect (void) {
+//}
+
+/*********************************************************************
+*
+*       BeforeTargetConnect
+*
+* Function description
+*   Event handler routine. Optional.
+*
+**********************************************************************
+*/
+//void BeforeTargetConnect (void) {
+//}
+
+/*********************************************************************
+*
+*       AfterTargetConnect
+*
+* Function description
+*   Event handler routine. Optional.
+*
+**********************************************************************
+*/
+//void AfterTargetConnect (void) {
+//}
+
+/*********************************************************************
+*
+*       TargetDownload
+*
+* Function description
+*   Replaces the default program download routine. Optional.
+*
+**********************************************************************
+*/
+void TargetDownload (void) {
+  Util.Log("Skipping download, assuming the firmware is already programmed in FLASH.");
+}
+
+/*********************************************************************
+*
+*       BeforeTargetDownload
+*
+* Function description
+*   Event handler routine. Optional.
+*
+**********************************************************************
+*/
+void BeforeTargetDownload (void) {
+
+    Util.Log("Before downloading, invoke HW reset.");
+    Target.WriteU32(0x100C0050, 0x1);
+    Exec.Reset();
+}
+
+/*********************************************************************
+*
+*      AfterTargetDownload
+*
+* Function description
+*   Event handler routine. Optional.
+*    - Sets the PC register to program reset value.
+*    - Sets the SP register to program reset value on Cortex-M.
+*
+**********************************************************************
+*/
+void AfterTargetDownload (void) {
+  /*
+   * We must override this hook, or else Ozone sets PC from the entry point
+   * of the ELF, which is invalid since at this point the ROM booter is at 0.
+   */
+
+  /* Nothing to do, just let the booter run */
+}
+
+/*********************************************************************
+*
+*       BeforeTargetDisconnect
+*
+* Function description
+*   Event handler routine. Optional.
+*
+**********************************************************************
+*/
+//void BeforeTargetDisconnect (void) {
+//}
+
+/*********************************************************************
+*
+*       AfterTargetDisconnect
+*
+* Function description
+*   Event handler routine. Optional.
+*
+**********************************************************************
+*/
+//void AfterTargetDisconnect (void) {
+//}
+
+/*********************************************************************
+*
+*       AfterTargetHalt
+*
+* Function description
+*   Event handler routine. Optional.
+*
+**********************************************************************
+*/
+//void AfterTargetHalt (void) {
+//}
+
+/*********************************************************************
+*
+*       BeforeTargetResume
+*
+* Function description
+*   Event handler routine. Optional.
+*
+**********************************************************************
+*/
+//void BeforeTargetResume (void) {
+//}
+
+/*********************************************************************
+*
+*       OnSnapshotLoad
+*
+* Function description
+*   Called upon loading a snapshot. Optional.
+*
+* Additional information
+*   This function is used to restore the target state in cases
+*   where values cannot simply be written to the target.
+*   Typical use: GPIO clock needs to be enabled, before
+*   GPIO is configured.
+*
+**********************************************************************
+*/
+//void OnSnapshotLoad (void) {
+//}
+
+/*********************************************************************
+*
+*       OnSnapshotSave
+*
+* Function description
+*   Called upon saving a snapshot. Optional.
+*
+* Additional information
+*   This function is usually used to save values of the target
+*   state which can either not be trivially read,
+*   or need to be restored in a specific way or order.
+*   Typically use: Memory Mapped Registers,
+*   such as PLL and GPIO configuration.
+*
+**********************************************************************
+*/
+//void OnSnapshotSave (void) {
+//}
+
+/*********************************************************************
+*
+*       OnError
+*
+* Function description
+*   Called when an error ocurred. Optional.
+*
+**********************************************************************
+*/
+//void OnError (const char* sErrorMsg) {
+//}

@@ -1,0 +1,131 @@
+{
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "cmake . -B build -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake && cd build && make -j8",
+            "args": [],
+            "problemMatcher": "$gcc",
+            "group": "build"
+        },
+        {
+            "label": "Build ACT release",
+            "type": "shell",
+            "command": "act -b -e event.json --container-architecture linux/amd64",
+            "options": {
+                "cwd": "${workspaceRoot}",
+            },
+            "dependsOn": "Clean",
+            "group": "build"
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "rm -r build",
+            "options": {
+                "cwd": "${workspaceRoot}",
+            },
+            "group": "build"
+        },
+        {
+            "label": "Erase OQSPI SWD",
+            "type": "shell",
+            "command": "python3 ./erase_oqspi.py --jlink",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts/oqspi",
+            },
+            "group": "build"
+        },
+        {
+            "label": "Erase OQSPI Serial",
+            "type": "shell",
+            "command": "python3 ./erase_oqspi.py --serial",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts/oqspi",
+            },
+            "group": "none"
+        },
+        {
+            "label": "Erase QSPI SWD",
+            "type": "shell",
+            "command": "python3 ./erase_oqspi.py --jlink",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts/oqspi",
+            },
+            "group": "build"
+        },
+        {
+            "label": "Erase QSPI Serial",
+            "type": "shell",
+            "command": "python3 ./erase_qspi.py --serial",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts/qspi",
+            },
+            "group": "none"
+        },
+        {
+            "label": "Program QSPI config",
+            "type": "shell",
+            "command": "python3 ./program_qspi_config.py",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts/qspi",
+            },
+            "group": "none"
+        },
+        {
+            "label": "Program OQSPI SWD Debug",
+            "type": "shell",
+            "command": "python3 ./program_oqspi.py --jlink --prod_header ${workspaceRoot}/build/da1470x_demo.bin",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts/oqspi",
+            },
+            "dependsOn": [
+                "Build Debug"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Load Assets QSPI SWD",
+            "type": "shell",
+            "command": "python3 ./program_bin_qspi.py --jlink --bin_address 0x0 ${workspaceRoot}/ui/demo/resources/bitmaps/WatchDemoColoredResources.bin",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts/qspi",
+            },
+            "group": "build"
+        },
+        {
+            "label": "Program OQSPI nvparams",
+            "type": "shell",
+            "command": "python3 ./program_oqspi_nvparam.py ${workspaceRoot}/build",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts/oqspi",
+            },
+            "dependsOn": [
+                "Build"
+            ],
+            "group": "none"
+        },
+        {
+            "label": "Read flash params SWD",
+            "type": "shell",
+            "command": "python3 ./read_flash_info.py --jlink",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts/flash",
+            },
+            "group": "none"
+        },
+        {
+            "label": "Flash initial",
+            "type": "shell",
+            "command": "python3 ./suota/v11/initial_flash.py ${workspaceRoot}/build/da1470x_demo.bin --prod_id DA1470x-00",
+            "options": {
+                "cwd": "${workspaceRoot}/SDK-10.2.6.49/utilities/python_scripts",
+            },
+            "dependsOn": [
+                "Load Assets QSPI SWD"
+            ],
+            "group": "none"
+        }
+    ],
+    "version": "2.0.0"
+}

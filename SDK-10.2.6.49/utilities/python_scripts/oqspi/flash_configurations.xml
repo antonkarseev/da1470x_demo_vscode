@@ -1,0 +1,67 @@
+<flash_configurations>
+    <configuration name="MX25U6432">
+        <flash_size>0x800000</flash_size>
+        <flash_burstcmda_reg_value>0xa8a500eb</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x00000616</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0xf8018f83</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x03 0x01 0x40 0x07</flash_write_config_command>
+    </configuration>
+    <configuration name="W25Q64JWIM">
+        <flash_size>0x800000</flash_size>
+        <flash_burstcmda_reg_value>0xa8a000eb</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x00000616</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0xf8018f83</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x02 0x31 0x02</flash_write_config_command>
+    </configuration>
+    <configuration name="AT25SL128">
+        <flash_size>0x1000000</flash_size>
+        <flash_burstcmda_reg_value>0xa8a000eb</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x00030616</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0xf8018103</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x02 0x31 0x02</flash_write_config_command>
+    </configuration>
+    <configuration name="AT25QL641">
+        <flash_size>0x800000</flash_size>
+        <flash_burstcmda_reg_value>0xa8a000eb</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x00000616</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0xf8018f83</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x02 0x31 0x02</flash_write_config_command>
+    </configuration>
+    <!--Unsupported Flash memories
+    <configuration name="MX66UM1G45G"  unsupported="true">
+        <flash_size>0x8000000</flash_size>
+        <flash_burstcmda_reg_value>0xcf0000ec</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x00000333</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0x0001ef83</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x06 0x72 0x00 0x00 0x00 0x00 0x01</flash_write_config_command>
+    </configuration>
+    <configuration name="W25Q32JWIQ" unsupported="true">
+        <flash_size>0x400000</flash_size>
+        <flash_burstcmda_reg_value>0xA8FF00EB</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x00000216</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0xF8018F81</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x02 0x31 0x02</flash_write_config_command>
+    </configuration>
+    <configuration name="W25Q256JW" unsupported="true">
+        <flash_size>0x2000000</flash_size>
+        <flash_burstcmda_reg_value>0xA8A000EC</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x00000616</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0xF801AF83</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x02 0x31 0x02</flash_write_config_command>
+    </configuration>
+    <configuration name="GD25LQ64C/GD25LE64E" unsupported="true">
+        <flash_size>0x800000</flash_size>
+        <flash_burstcmda_reg_value>0xA8A000EB</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x00000616</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0xF8018F83</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x03 0x01 0x00 0x02</flash_write_config_command>
+    </configuration>
+    <configuration name="MX25UM25645G" unsupported="true">
+        <flash_size>0x2000000</flash_size>
+        <flash_burstcmda_reg_value>0xCF0000EC</flash_burstcmda_reg_value>
+        <flash_burstcmdb_reg_value>0x00000333</flash_burstcmdb_reg_value>
+        <flash_ctrlmode_reg_value>0x0001EF83</flash_ctrlmode_reg_value>
+        <flash_write_config_command>0x06 0x72 0x00 0x00 0x00 0x00 0x01</flash_write_config_command>
+    </configuration>
+    Unsupported Flash memories-->
+</flash_configurations>

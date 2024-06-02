@@ -1,0 +1,11 @@
+int ConfigTargetSettings(void)
+{
+        JLINK_SYS_Report("Override ROM Table (TPIU)");
+        JLINK_ExecCommand("CORESIGHT_SetTPIUBaseAddr = 0xE0040000");
+
+        JLINK_SYS_Report("Use 4KiB for MTB");
+        JLINK_ExecCommand("CORESIGHT_SetMTBBufUsageSize = 0x1000");
+
+        return 0;
+}
+

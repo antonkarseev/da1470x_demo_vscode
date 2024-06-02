@@ -1,0 +1,62 @@
+int ConfigTargetSettings(void)
+{
+        JLINK_SYS_Report("Override ROM Table (TPIU)");
+        JLINK_ExecCommand("CORESIGHT_SetTPIUBaseAddr = 0xE0040000");
+
+        return 0;
+}
+
+int SetupTarget(void)
+{
+        JLINK_ExecCommand("CORESIGHT_SetMTBBaseAddr 0");
+        JLINK_ExecCommand("CORESIGHT_SetMTBBufUsageSize 0x1000");
+
+        return 0;
+}
+
+int OnTraceStart(void)
+{
+        U32 v;
+
+        /* Enable DEBGU_REG[ETM_TRACE_MAP_ON_PINS_EN] */
+        v = JLINK_MEM_ReadU16(0x50040108);
+        v |= 0x1000;
+        JLINK_MEM_WriteU16(0x50040108, v);
+ 
+        /* Set P0[31] to 'Output' for TRACE_CLK */
+        JLINK_MEM_WriteU32(0x500501A0, 0x300);
+
+        /* Read P0_PAD_LATCH_REG */
+        v = JLINK_MEM_ReadU32(0x50000070);
+        v |= (1 << 31);
+        /* Write P0_SET_PAD_LATCH_REG */
+        JLINK_MEM_WriteU32(0x50000074, v);
+
+        /* Read P1_PAD_LATCH_REG */
+        v = JLINK_MEM_ReadU32(0x5000007C);
+
+        /* Set P1[30] to 'Output' for TRACE_DATA[0] */
+        JLINK_MEM_WriteU32(0x5005021C, 0x300);
+        v |= (1 << 30); 
+        if (JLINK_TRACE_PortWidth > 1) {
+                /* Set P1[22] to 'Output' for TRACE_DATA[1] */
+                JLINK_MEM_WriteU32(0x500501FC, 0x300);
+                v |= (1 << 22);
+        }
+        if (JLINK_TRACE_PortWidth == 4) {
+                /* Set P1[31] to 'Output' for TRACE_DATA[2] */
+                JLINK_MEM_WriteU32(0x50050220, 0x300);
+                /* Set P1[23] to 'Output' for TRACE_DATA[3] */
+                JLINK_MEM_WriteU32(0x50050200, 0x300);
+                v |= (1 << 31) | (1 << 23);
+        }
+        /* Write P1_SET_PAD_LATCH_REG */
+        JLINK_MEM_WriteU32(0x50000080, v);
+
+        /* Configure TPIU for trace port mode */
+        JLINK_MEM_WriteU32(0xE0040004, JLINK_TRACE_PortWidth);
+        /* TPIU Selected Pin Protocol Parallel Port */
+        JLINK_MEM_WriteU32(0xE00400F0, 0);
+
+        return 0;
+}
