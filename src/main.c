@@ -70,6 +70,9 @@ INITIALISED_PRIVILEGED_DATA int8_t idle_task_wdog_id = -1;
 
 void MainTask(void);
 
+#ifdef PERFORMANCE_METRICS
+extern void UISimulationTask(void);
+#endif
 /*
  * Perform any application specific hardware configuration.  The clocks,
  * memory, etc. are configured before main() is called.

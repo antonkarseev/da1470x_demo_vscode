@@ -101,7 +101,6 @@ if(PERFORMANCE_METRICS)
         gdi/src/touch_simulation.c
         ui/UISimulationTask.c
         ui/demo/metrics.c 
-
     )
 
     add_definitions(-DPERFORMANCE_METRICS=${PERFORMANCE_METRICS})
