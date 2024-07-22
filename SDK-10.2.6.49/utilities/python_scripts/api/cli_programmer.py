@@ -38,15 +38,11 @@ def start_jlink_gdb_server(cmd_str, port):
     if check_sock.connect_ex(('localhost', port)) == 0:
         raise RuntimeError("Some application is listening on port {} already!".format(port))
     check_sock.close()
-    print("gdb start")
     sys.stdout.flush()
-    print("cmd_str ", cmd_str)
+    print("Command: ", cmd_str)
 
     pr = subprocess.Popen(args=split(cmd_str), stderr=subprocess.DEVNULL,
                           stdout=subprocess.DEVNULL)
-
-    print("gdb started")
-
 
     # Wait until JLinkGDBServer starts listening on socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -54,16 +50,12 @@ def start_jlink_gdb_server(cmd_str, port):
 
     host = socket.gethostname()
 
-    print("socket created ", host, port)
-
     # res = sock.connect_ex(('localhost', port))
 
     # while res != 0:
     #     res = sock.connect_ex(('localhost', port))
     #     pass
     
-    print("socket connected")
-
     sock.close()
     jlink_gdb_server_instance = pr
 
@@ -111,7 +103,6 @@ class CliProgrammer(Application):
             self.fd, self.__temp_cfg = tempfile.mkstemp()
             self.save(self.__temp_cfg)
             self.delete_cfg = True
-            print("temp cfg", self.__temp_cfg)
         elif not os.path.exists(cfg_path):
             self.save(cfg_path)
             self.__temp_cfg = cfg_path
@@ -167,7 +158,6 @@ class CliProgrammer(Application):
             cmd.append(str(serial_port))
         else:
             # Start JLinkGDBServer instance if needed
-            print("start")
             start_jlink_gdb_server(self.__get_gdb_server_conf_field('gdb_server_path'),
                                    int(self.__get_gdb_server_conf_field('port')))
 

@@ -84,7 +84,6 @@ set(PROJECT_SRCS
     ui/demo/screens/timer_screen.c 
     ui/demo/screens/watch_face_screen.c 
     ui/demo/init_screens.c 
-    ui/demo/metrics.c 
     ui/demo/module.c 
     ui/CompassTask.c 
     ui/MainTask.c 
@@ -101,6 +100,8 @@ if(PERFORMANCE_METRICS)
         ${PROJECT_SRCS}
         gdi/src/touch_simulation.c
         ui/UISimulationTask.c
+        ui/demo/metrics.c 
+
     )
 
     add_definitions(-DPERFORMANCE_METRICS=${PERFORMANCE_METRICS})

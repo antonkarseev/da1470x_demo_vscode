@@ -70,7 +70,6 @@ def get_jlink_exe(jlink_path=None):
 
 
 def get_jlink_gdb(jlink_path=None):
-    print("default gdb", get_default_jlink_path())
     return os.path.join(jlink_path if jlink_path else get_default_jlink_path(), JLINK_GDB)
 
 
@@ -94,8 +93,6 @@ class JLinkExe(Application):
             emulist_file = tempfile.mktemp()
             self.__make_showemulist_file(emulist_file)
             
-            print(emulist_file)
-
             cmd = ["-ExitOnError", "-CommandFile", emulist_file]
             kwargs['silent'] = True
             out = self.run(args=cmd, **kwargs)

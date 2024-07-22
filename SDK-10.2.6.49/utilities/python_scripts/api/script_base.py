@@ -47,7 +47,6 @@ def run_script(callback, argument_parser, suppress_errors=False):
 def select_jlink_serial(jlink_path):
     devices = JLinkExe(jlink_path).find_jlink_numbers()
 
-    print("devices", devices)
     if not devices:
         raise RuntimeError('No devices found. Please connect at least one and retry.')
 
