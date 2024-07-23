@@ -153,10 +153,11 @@ static const uint8_t PAD[64] = { 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 static void
 SHA256_Pad(crypto_hash_sha256_state *state, uint32_t tmp32[64 + 8])
 {
-    uint64_t r;
-    uint64_t i;
+    unsigned int r;
+    unsigned int i;
 
-    r = (state->count >> 3) & 0x3f;
+    ACQUIRE_FENCE;
+    r = (unsigned int) ((state->count >> 3) & 0x3f);
     if (r < 56) {
         for (i = 0; i < 56 - r; i++) {
             state->buf[r + i] = PAD[i];
@@ -197,6 +198,7 @@ crypto_hash_sha256_update(crypto_hash_sha256_state *state,
     if (inlen <= 0U) {
         return 0;
     }
+    ACQUIRE_FENCE;
     r = (unsigned long long) ((state->count >> 3) & 0x3f);
 
     state->count += ((uint64_t) inlen) << 3;

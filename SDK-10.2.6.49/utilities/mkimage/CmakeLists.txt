@@ -1,0 +1,53 @@
+# Set the minimum version of CMake that can be used
+# To find the cmake version run
+# $ cmake --version
+cmake_minimum_required(VERSION 3.13)
+
+if(APPLE)
+set(PROJECT mkimage_osx)
+else()
+set(PROJECT mkimage)
+endif()
+# Set the project name
+project (${PROJECT})
+
+set(SDK_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+
+
+# Create a sources variable with a link to all cpp files to compile
+set(SOURCES
+    mkimage.c
+)
+
+set(INCLUDE_DIRS
+    .
+    ../libbo_crypto
+    ../libbo_crypto/api
+    /usr/local/include 
+    ../libmkimage
+    ../libmkimage/api
+)
+
+add_subdirectory(../libmkimage libmkimage)
+
+add_executable(${PROJECT} ${SOURCES} ${SERIAL_SRC})
+
+target_include_directories(${PROJECT}
+    PRIVATE 
+    ${INCLUDE_DIRS}
+)
+
+target_link_directories(${PROJECT} PRIVATE /usr/local/lib)
+
+target_link_libraries( ${PROJECT} PRIVATE mkimage)
+
+
+add_subdirectory(../libbo_crypto/third_party_crypto libsodium)
+
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        sodium
+)
+# target_link_libraries( ${PROJECT} PRIVATE sodium)
+
+install(TARGETS ${PROJECT} DESTINATION ${SDK_ROOT_PATH}/binaries)

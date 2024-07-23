@@ -140,8 +140,9 @@ generate_addresses(const argon2_instance_t *instance,
     }
 }
 
-int
-fill_segment_ref(const argon2_instance_t *instance, argon2_position_t position)
+void
+argon2_fill_segment_ref(const argon2_instance_t *instance,
+                        argon2_position_t position)
 {
     block    *ref_block = NULL, *curr_block = NULL;
     /* Pseudo-random values that determine the reference block position */
@@ -153,7 +154,7 @@ fill_segment_ref(const argon2_instance_t *instance, argon2_position_t position)
     int       data_independent_addressing = 1;
 
     if (instance == NULL) {
-        return ARGON2_OK;
+        return;
     }
 
     if (instance->type == Argon2_id &&
@@ -161,12 +162,7 @@ fill_segment_ref(const argon2_instance_t *instance, argon2_position_t position)
         data_independent_addressing = 0;
     }
 
-    pseudo_rands =
-        (uint64_t *) malloc(sizeof(uint64_t) * (instance->segment_length));
-
-    if (pseudo_rands == NULL) {
-        return ARGON2_MEMORY_ALLOCATION_ERROR;
-    }
+    pseudo_rands = instance->pseudo_rands;
 
     if (data_independent_addressing) {
         generate_addresses(instance, &position, pseudo_rands);
@@ -235,8 +231,4 @@ fill_segment_ref(const argon2_instance_t *instance, argon2_position_t position)
                        curr_block);
         }
     }
-
-    free(pseudo_rands);
-
-    return ARGON2_OK;
 }

@@ -102,7 +102,7 @@
 #define CPU_UNALIGNED_ACCESS 1
 #define HAVE_ATOMIC_OPS 1
 #define HAVE_MMAP 1
-#define HAVE_MLOCK 1
+#define HAVE_MLOCK 0
 #define HAVE_MADVISE 1
 #define HAVE_MPROTECT 1
 #define HAVE_NANOSLEEP 1
@@ -135,5 +135,5 @@ int errno;
 
 #endif
 
-#endif /* LIBSODIUM_CONFIG_H_ */
+// #endif /* LIBSODIUM_CONFIG_H_ */
 

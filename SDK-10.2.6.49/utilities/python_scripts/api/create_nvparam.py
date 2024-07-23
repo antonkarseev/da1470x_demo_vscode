@@ -6,7 +6,7 @@
 #########################################################################################
 
 import os
-from subprocess import call
+from subprocess import call, check_output
 import subprocess
 import sys
 
@@ -18,6 +18,7 @@ from api.utils import SDK_ROOT
 
 DIR_OUT = ''
 DIR_NVPARAM = os.path.join(SDK_ROOT, 'utilities', 'nvparam')
+DIR_COMPILLER_STUBS = os.path.join(SDK_ROOT, 'sdk')
 NVPARAM_BIN = ''
 CUSTOM_CFG_PATH = 0
 
@@ -49,6 +50,11 @@ def find_toolchain(cc_path):
 
     raise RuntimeError("Cannot find arm-none-eabi-gcc, check your PATH or ARM_TOOLCHAIN settings!")
 
+def version(v):
+   filled = []
+   for point in v.split("."):
+      filled.append(point.zfill(8))
+   return tuple(filled)
 
 def create_nvparam(project_path, include_paths, cc_path=None):
     includes = []
@@ -56,6 +62,9 @@ def create_nvparam(project_path, include_paths, cc_path=None):
     NVPARAM_BIN = os.path.join(project_path, "nvparam.bin")
 
     cross = find_toolchain(cc_path)
+
+    gcc_version = check_output([cross, "-dumpversion"]).decode("utf-8")
+    print("GCC version: " + gcc_version)
 
     APP_NVPARAM_H = include_paths[CUSTOM_CFG_PATH] + "/app_nvparam.h"
     APP_NVPARAM_VAL_H = include_paths[CUSTOM_CFG_PATH] + "/app_nvparam_values.h"
@@ -78,11 +87,23 @@ def create_nvparam(project_path, include_paths, cc_path=None):
                                                     os.path.join(DIR_NVPARAM, "sections.ld.h")]):
         raise RuntimeError("Failed to create nvparam-sections.ld")
 
-    if call([cross, "--specs=nano.specs", "--specs=nosys.specs", "-T",
-             os.path.join(DIR_OUT, "nvparam-sections.ld"), "-o",
-             os.path.join(DIR_OUT, "nvparam.elf"),
-             os.path.join(DIR_OUT, "nvparam-symbols.o")]):
-        raise RuntimeError("Failed to create nvparam.elf")
+    if version(gcc_version) > version("12"):
+        if call([cross, "-c", NVPARAM_DEF] + includes + ["-o", os.path.join(DIR_OUT, "compiller_stubs.o"),
+                                            os.path.join(DIR_COMPILLER_STUBS, "compiller_stubs.c")]):
+            raise RuntimeError("Failed to create nvparam-symbols.o")
+        
+        if call([cross, "--specs=nano.specs", "--specs=nosys.specs", "-Wl,--no-warn-rwx-segment", "-T",
+                os.path.join(DIR_OUT, "nvparam-sections.ld"), "-o",
+                os.path.join(DIR_OUT, "nvparam.elf"),
+                os.path.join(DIR_OUT, "nvparam-symbols.o"),
+                os.path.join(DIR_OUT, "compiller_stubs.o")]):
+            raise RuntimeError("Failed to create nvparam.elf")
+    else:
+        if call([cross, "--specs=nano.specs", "--specs=nosys.specs", "-T",
+                os.path.join(DIR_OUT, "nvparam-sections.ld"), "-o",
+                os.path.join(DIR_OUT, "nvparam.elf"),
+                os.path.join(DIR_OUT, "nvparam-symbols.o")]):
+            raise RuntimeError("Failed to create nvparam.elf")
 
     cross = cross.replace("-gcc", "-objcopy")
 

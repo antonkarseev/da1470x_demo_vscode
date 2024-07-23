@@ -19,6 +19,12 @@ crypto_stream_xchacha20_noncebytes(void)
     return crypto_stream_xchacha20_NONCEBYTES;
 }
 
+size_t
+crypto_stream_xchacha20_messagebytes_max(void)
+{
+    return crypto_stream_xchacha20_MESSAGEBYTES_MAX;
+}
+
 int
 crypto_stream_xchacha20(unsigned char *c, unsigned long long clen,
                         const unsigned char *n, const unsigned char *k)
@@ -29,7 +35,7 @@ crypto_stream_xchacha20(unsigned char *c, unsigned long long clen,
     COMPILER_ASSERT(crypto_stream_chacha20_KEYBYTES <= sizeof k2);
     COMPILER_ASSERT(crypto_stream_chacha20_NONCEBYTES ==
                     crypto_stream_xchacha20_NONCEBYTES -
-                        crypto_core_hchacha20_INPUTBYTES);
+                    crypto_core_hchacha20_INPUTBYTES);
 
     return crypto_stream_chacha20(c, clen, n + crypto_core_hchacha20_INPUTBYTES,
                                   k2);

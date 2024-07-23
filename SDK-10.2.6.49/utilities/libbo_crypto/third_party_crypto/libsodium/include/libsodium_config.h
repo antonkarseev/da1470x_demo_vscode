@@ -102,7 +102,7 @@
 #define CPU_UNALIGNED_ACCESS 1
 #define HAVE_ATOMIC_OPS 1
 #define HAVE_MMAP 1
-#define HAVE_MLOCK 1
+#define HAVE_MLOCK 0
 #define HAVE_MADVISE 1
 #define HAVE_MPROTECT 1
 #define HAVE_NANOSLEEP 1
@@ -110,21 +110,21 @@
 #define HAVE_GETPID 1
 #define CONFIGURED 1
 
-#ifndef ARMV7_SUPPORT
-/* This features are unavailable for ARMv7 */
-#define HAVE_EMMINTRIN_H 1
-#define HAVE_PMMINTRIN_H 1
-#define HAVE_TMMINTRIN_H 1
-#define HAVE_SMMINTRIN_H 1
-#define HAVE_AVXINTRIN_H 1
-#define HAVE_AVX2INTRIN_H 1
-#define HAVE_WMMINTRIN_H 1
-#define HAVE_SYS_MMAN_H 1
-#define HAVE_AMD64_ASM 0
-#define HAVE_AVX_ASM 0
-#define HAVE_TI_MODE 1
-#define HAVE_CPUID 1
-#else
+// #ifndef ARMV7_SUPPORT
+// /* This features are unavailable for ARMv7 */
+// #define HAVE_EMMINTRIN_H 1
+// #define HAVE_PMMINTRIN_H 1
+// #define HAVE_TMMINTRIN_H 1
+// #define HAVE_SMMINTRIN_H 1
+// #define HAVE_AVXINTRIN_H 1
+// #define HAVE_AVX2INTRIN_H 1
+// #define HAVE_WMMINTRIN_H 1
+// #define HAVE_SYS_MMAN_H 1
+// #define HAVE_AMD64_ASM 1
+// #define HAVE_AVX_ASM 0
+// #define HAVE_TI_MODE 1
+// #define HAVE_CPUID 1
+// #else
 /* Disable Possix threads for ARMv7 */
 #undef HAVE_PTHREAD
 #define NDEBUG 1

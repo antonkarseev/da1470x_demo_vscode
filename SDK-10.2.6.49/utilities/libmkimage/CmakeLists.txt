@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.5)
+
+project (mkimage)
+
+set(SOURCES
+    mkimage.c
+)
+
+set(INCLUDE_DIRS
+    api
+    ../libbo_crypto 
+    ../libbo_crypto/api
+    ../../sdk/bsp/include 
+)
+
+add_library(mkimage ${SOURCES} ${SERIAL_SRC})
+
+add_subdirectory(../libbo_crypto libbo_crypto)
+
+
+target_include_directories(mkimage
+    PRIVATE 
+    ${INCLUDE_DIRS}
+)
+
+target_link_libraries(mkimage PRIVATE bo_crypto)

@@ -1,0 +1,85 @@
+# Set the minimum version of CMake that can be used
+# To find the cmake version run
+# $ cmake --version
+
+
+cmake_minimum_required(VERSION 3.28)
+include(ExternalProject)
+
+set(SDK_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+set(SDK_PATH ${SDK_ROOT_PATH}/sdk)
+
+if(APPLE)
+set(PROJECT cli_programmer_osx)
+else()
+set(PROJECT cli_programmer)
+endif()
+# Set the project name
+project (${PROJECT})
+
+# Create a sources variable with a link to all cpp files to compile
+set(SOURCES
+    src/cli_config_parser.c
+    src/cmd_handlers.c
+    src/ini_parser.c
+    src/main.c
+    src/opt_handlers.c
+    src/queue.c
+    src/util.c 
+)
+
+if(APPLE)
+else()
+message( FATAL_ERROR "Only MAC OS building for now" )
+endif()
+
+add_definitions(-DDA1470X)
+
+set(INCLUDE_DIRS
+    .
+    include
+    ../libprogrammer
+    ../libprogrammer/api
+
+    ${SDK_PATH}/middleware/adapters/include
+    ${SDK_PATH}/bsp/include
+    ${SDK_PATH}/bsp/system/loaders/uartboot/include
+)
+
+add_subdirectory(../libprogrammer libprogrammer)
+
+set(RESOURCES_SRC ${CMAKE_BINARY_DIR}/uartboot_bin.c)
+set(UARTBOOT_BINARY_DIR ${CMAKE_BINARY_DIR}/uartboot)
+
+ExternalProject_Add(uartboot
+    PREFIX ${UARTBOOT_BINARY_DIR}
+    SOURCE_DIR ${SDK_PATH}/bsp/system/loaders/uartboot
+    BINARY_DIR ${UARTBOOT_BINARY_DIR}
+    # CONFIGURE_COMMAND ""
+    # CMAKE_GENERATOR ${generator}
+    CMAKE_ARGS -B ${UARTBOOT_BINARY_DIR}
+    BUILD_COMMAND make
+    INSTALL_COMMAND ""
+)
+
+add_executable(embedfile embedfile.c)
+
+add_custom_command(
+  TARGET embedfile POST_BUILD
+  COMMAND embedfile uartboot_bin ${UARTBOOT_BINARY_DIR}/uartboot.bin
+  DEPENDS uartboot)
+
+add_executable(${PROJECT} ${SOURCES} ${SERIAL_SRC} ${RESOURCES_SRC})
+target_include_directories(${PROJECT}
+    PRIVATE 
+    ${INCLUDE_DIRS}
+)
+
+set_source_files_properties(${RESOURCES_SRC} PROPERTIES GENERATED TRUE)
+
+add_dependencies(${PROJECT} embedfile)
+
+target_link_libraries(${PROJECT} PRIVATE libprogrammer)
+
+install(TARGETS ${PROJECT} DESTINATION ${SDK_ROOT_PATH}/binaries)
+install(FILES ${UARTBOOT_BINARY_DIR}/uartboot.bin DESTINATION ${SDK_ROOT_PATH}/binaries)

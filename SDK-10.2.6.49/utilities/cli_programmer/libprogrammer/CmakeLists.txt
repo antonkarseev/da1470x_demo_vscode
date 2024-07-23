@@ -1,0 +1,36 @@
+# Set the minimum version of CMake that can be used
+# To find the cmake version run
+# $ cmake --version
+cmake_minimum_required(VERSION 3.5)
+
+# Set the project name
+project (libprogrammer)
+
+# Create a sources variable with a link to all cpp files to compile
+set(SOURCES
+    crc16.c
+    gdb_server_cmds.c
+    programmer.c 
+    protocol_cmds.c 
+)
+
+if(WIN32)
+set(SERIAL_SRC serial_win.c)
+else()
+set(SERIAL_SRC serial_linux.c)
+endif()
+
+set(INCLUDE_DIRS
+    .
+    api
+    ../../../sdk/middleware/adapters/include
+    ../../../sdk/bsp/include
+    ../../../sdk/bsp/system/loaders/uartboot/include
+)
+
+add_library(libprogrammer ${SOURCES} ${SERIAL_SRC})
+
+target_include_directories(libprogrammer
+    PRIVATE 
+    ${INCLUDE_DIRS}
+)

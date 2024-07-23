@@ -18,7 +18,6 @@
 #include "argon2-core.h"
 #include "argon2.h"
 #include "private/common.h"
-#include "private/sse2_64_32.h"
 
 #if defined(HAVE_AVX2INTRIN_H) && defined(HAVE_EMMINTRIN_H) && \
     defined(HAVE_TMMINTRIN_H) && defined(HAVE_SMMINTRIN_H)
@@ -33,10 +32,11 @@
 # ifdef _MSC_VER
 #  include <intrin.h> /* for _mm_set_epi64x */
 # endif
-#include <emmintrin.h>
-#include <immintrin.h>
-#include <smmintrin.h>
-#include <tmmintrin.h>
+# include <emmintrin.h>
+# include <immintrin.h>
+# include <smmintrin.h>
+# include <tmmintrin.h>
+# include "private/sse2_64_32.h"
 
 # include "blamka-round-avx2.h"
 
@@ -140,22 +140,22 @@ generate_addresses(const argon2_instance_t *instance,
     }
 }
 
-int
-fill_segment_avx2(const argon2_instance_t *instance,
-                  argon2_position_t        position)
+void
+argon2_fill_segment_avx2(const argon2_instance_t *instance,
+                         argon2_position_t        position)
 {
     block    *ref_block = NULL, *curr_block = NULL;
     uint64_t  pseudo_rand, ref_index, ref_lane;
     uint32_t  prev_offset, curr_offset;
     uint32_t  starting_index, i;
-    __m256i   state[32];
+    __m256i   state[ARGON2_HWORDS_IN_BLOCK];
     int       data_independent_addressing = 1;
 
     /* Pseudo-random values that determine the reference block position */
     uint64_t *pseudo_rands = NULL;
 
     if (instance == NULL) {
-        return ARGON2_OK;
+        return;
     }
 
     if (instance->type == Argon2_id &&
@@ -163,11 +163,7 @@ fill_segment_avx2(const argon2_instance_t *instance,
         data_independent_addressing = 0;
     }
 
-    pseudo_rands =
-        (uint64_t *) malloc(sizeof(uint64_t) * instance->segment_length);
-    if (pseudo_rands == NULL) {
-        return ARGON2_MEMORY_ALLOCATION_ERROR;
-    }
+    pseudo_rands = instance->pseudo_rands;
 
     if (data_independent_addressing) {
         generate_addresses(instance, &position, pseudo_rands);
@@ -239,9 +235,5 @@ fill_segment_avx2(const argon2_instance_t *instance,
                        (uint8_t *) curr_block->v);
         }
     }
-
-    free(pseudo_rands);
-
-    return ARGON2_OK;
 }
 #endif

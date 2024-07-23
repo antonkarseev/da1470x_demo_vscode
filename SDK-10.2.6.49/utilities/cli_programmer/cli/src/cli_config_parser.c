@@ -237,7 +237,7 @@ bool cli_config_load_from_ini_file(const char *file_path, struct cli_options *op
                                        /* Free previously allocated memory */
                                        free(opts->gdb_server_config.gdb_server_path);
                                }
-                                print("parser gdb", elem.valueB)
+                                printf("parser gdb", elem.value);
                                opts->gdb_server_config.gdb_server_path = strdup(elem.value);
                        } else if (!strcmp(elem.key, PARAM_NAME_NO_KILL_MODE)) {
                                if (get_number(elem.value, &tmp)) {

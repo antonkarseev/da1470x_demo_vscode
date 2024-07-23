@@ -2598,7 +2598,7 @@ static void fill_suota_header(suota_1_1_image_header_t *img_header, const uint8_
 }
 
 int prog_write_qspi_suota_image(uint8_t *buf, int size, const char *version,
-                                                                time_t time_stamp, uint16_t flags)
+                                                                uint32_t time_stamp, uint16_t flags)
 {
         cmd_partition_table_t *part_table;
         cmd_partition_entry_t *entry;

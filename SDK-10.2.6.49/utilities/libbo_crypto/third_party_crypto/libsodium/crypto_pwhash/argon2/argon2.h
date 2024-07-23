@@ -16,6 +16,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "private/quirks.h"
+
 /*
  * Argon2 input parameter restrictions
  */
@@ -47,7 +49,7 @@
     ARGON2_MIN(UINT32_C(0xFFFFFFFF), UINT64_C(1) << ARGON2_MAX_MEMORY_BITS)
 
 /* Minimum and maximum number of passes */
-#define ARGON2_MIN_TIME UINT32_C(3)
+#define ARGON2_MIN_TIME UINT32_C(1)
 #define ARGON2_MAX_TIME UINT32_C(0xFFFFFFFF)
 
 /* Minimum and maximum password length in bytes */
@@ -68,8 +70,7 @@
 
 #define ARGON2_FLAG_CLEAR_PASSWORD (UINT32_C(1) << 0)
 #define ARGON2_FLAG_CLEAR_SECRET (UINT32_C(1) << 1)
-#define ARGON2_FLAG_CLEAR_MEMORY (UINT32_C(1) << 2)
-#define ARGON2_DEFAULT_FLAGS (ARGON2_FLAG_CLEAR_MEMORY)
+#define ARGON2_DEFAULT_FLAGS (UINT32_C(0))
 
 /* Error codes */
 typedef enum Argon2_ErrorCodes {
@@ -283,7 +284,7 @@ int argon2_hash(const uint32_t t_cost, const uint32_t m_cost,
 
 /**
  * Verifies a password against an encoded string
- * Encoded string is restricted as in validate_inputs()
+ * Encoded string is restricted as in argon2_validate_inputs()
  * @param encoded String encoding parameters, salt, hash
  * @param pwd Pointer to password
  * @pre   Returns ARGON2_OK if successful
@@ -292,7 +293,7 @@ int argon2i_verify(const char *encoded, const void *pwd, const size_t pwdlen);
 
 /**
  * Verifies a password against an encoded string
- * Encoded string is restricted as in validate_inputs()
+ * Encoded string is restricted as in argon2_validate_inputs()
  * @param encoded String encoding parameters, salt, hash
  * @param pwd Pointer to password
  * @pre   Returns ARGON2_OK if successful

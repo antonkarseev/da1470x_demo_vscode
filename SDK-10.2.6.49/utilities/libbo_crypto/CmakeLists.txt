@@ -1,0 +1,49 @@
+cmake_minimum_required(VERSION 3.5)
+
+
+include(FetchContent)
+
+project (bo_crypto)
+
+set(SOURCES
+    bo_crypto.c
+    third_party_crypto/uECC/uECC.c
+
+    third_party_crypto/mbedtls/src/aes.c 
+    third_party_crypto/mbedtls/src/asn1parse.c
+    third_party_crypto/mbedtls/src/asn1write.c 
+    third_party_crypto/mbedtls/src/bignum.c 
+    third_party_crypto/mbedtls/src/ctr_drbg.c
+    third_party_crypto/mbedtls/src/ecdsa.c 
+    third_party_crypto/mbedtls/src/ecp_curves.c 
+    third_party_crypto/mbedtls/src/ecp.c 
+    third_party_crypto/mbedtls/src/entropy_poll.c 
+    third_party_crypto/mbedtls/src/entropy.c 
+    third_party_crypto/mbedtls/src/hmac_drbg.c 
+    third_party_crypto/mbedtls/src/md_wrap.c 
+    third_party_crypto/mbedtls/src/md.c 
+    third_party_crypto/mbedtls/src/md5.c 
+    third_party_crypto/mbedtls/src/platform.c 
+    third_party_crypto/mbedtls/src/sha1.c 
+    third_party_crypto/mbedtls/src/sha256.c 
+    third_party_crypto/mbedtls/src/sha512.c 
+    third_party_crypto/mbedtls/src/timing.c
+)
+
+set(INCLUDE_DIRS
+    .
+    api
+    third_party_crypto
+    third_party_crypto/mbedtls/include
+    third_party_crypto/uECC
+
+    third_party_crypto/libsodium/include/sodium 
+    third_party_crypto/libsodium/include
+)
+
+add_library(bo_crypto ${SOURCES} ${SERIAL_SRC})
+
+target_include_directories(bo_crypto
+    PRIVATE 
+    ${INCLUDE_DIRS}
+)
