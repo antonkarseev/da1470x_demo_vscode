@@ -1,0 +1,109 @@
+on:
+  push:
+    tags:
+      - '*.*.*' # TO triggers only when sem.ver tags pusher
+
+name: Build and Release
+
+jobs:
+  buildjob:
+    runs-on: ubuntu-22.04
+    name: Debug build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get the version
+        id: get_version
+        run: echo "{VERSION}=${GITHUB_REF/refs\/tags\//}"
+
+      - name: Install dependencies
+        run: |
+          pwd
+          mkdir -p build
+          mkdir -p develop
+          # sudo apt-get update -y
+
+      - name: Update version
+        run: |
+          sed -i 's/SW_VERSION "[0-9]*.[0-9]*.[0-9]*"/SW_VERSION "${{ github.ref_name }}"/g' src/sw_version.h
+          sed -i 's/SW_BUILD_NUMBER "[0-9]*"/SW_BUILD_NUMBER "${{ github.run_number }}"/g' src/sw_version.h
+          sed -i "s/SW_VERSION_DATE \"[0-9]*-[0-9]*-[0-9]* [0-9]*:[0-9]*\"/SW_VERSION_DATE \"$(date +"%Y-%m-%d %H:%M")\"/g" src/sw_version.h
+
+      - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: '10.3-2021.10' # The arm-none-eabi-gcc release to use
+
+      - name: Install CMake
+        uses: lukka/get-cmake@v3.27.7
+        with:
+          useLocalCache: false
+
+      - name: Configure build
+        run: cmake . -B build -DRELEASE_BUILD=1 -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain.cmake && cd build && make -j8
+
+      - name: Copy image to working directory
+        run: |
+          version=${{ github.ref_name }}
+          cp build/da1470x_demo_suota.img develop/da1470x_demo_${version}.nonsecure.img
+
+      - name: Zip artifacts
+        run: |
+          version=${{ github.ref_name }}
+
+          release=release_${version}
+          nonsecure_img_main=develop/da1470x_demo_${version}.nonsecure.img
+
+          mkdir -p ${release}
+
+          cp ${nonsecure_img_main} ${release}
+
+          cp build/da1470x_demo.bin ${release}/da1470x_demo_${version}.bin
+          cp build/da1470x_demo.bin ${release}/da1470x_demo.bin
+          cp build/nvparam.bin ${release}/nvparam.bin
+          cp ui/demo/resources/bitmaps/WatchDemoColoredResources.bin ${release}/WatchDemoColoredResources.bin
+          
+          zip -r binaries.zip ${release}
+
+          cd ${release}
+
+      # Collect binaries in case of act building
+      - name: 'Local artifacts'
+        if: ${{ env.ACT }}
+        run: |
+          mkdir -p bin_releases
+
+          version=${{ github.ref_name }}
+          release=release_${version}
+
+          cp -r ${release} bin_releases/
+          chmod -R 777 bin_releases
+          rm -r ${release}
+          rm -r develop
+          rm binaries.zip
+
+      - name: Create Release
+        if: ${{ !env.ACT }}
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset
+        if: ${{ !env.ACT }}
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ./binaries.zip
+          asset_name: binaries.zip
+          asset_content_type: application/zip
